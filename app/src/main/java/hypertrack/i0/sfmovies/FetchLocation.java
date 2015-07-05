@@ -54,7 +54,7 @@ public class FetchLocation  extends AsyncTask<String, Void, String[]> {
             }
             Log.v(LOG_TAG, mtitle);
 
-            URL url = new URL("http://52.25.133.178:8080/HyperTrack/movies/"+mtitle);
+            URL url = new URL(mainActivityFragment.globalurl+"movies/"+mtitle);
             Log.v(LOG_TAG,url.toString());
             urlConnection = (HttpURLConnection)url.openConnection();
             urlConnection.setRequestMethod("GET");

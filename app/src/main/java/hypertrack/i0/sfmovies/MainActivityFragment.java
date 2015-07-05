@@ -58,8 +58,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public  class MainActivityFragment extends Fragment implements LocationListener {
 
     GoogleMap googleMap;
-
-    private String[] Locations;
+        private String[] Locations;
     private ArrayList<MyMarker> mMyMarkersArray = new ArrayList<MyMarker>();
     private Toolbar mToolbar;
     private MenuItem mSearchAction;
@@ -72,6 +71,8 @@ public  class MainActivityFragment extends Fragment implements LocationListener 
     ArrayAdapter<String> adapter;
     AutoCompleteTextView text;
     Context context;
+    String globalurl="http://52.25.133.178:8080/HyperTrack/";
+
     public MainActivityFragment() {
     }
 
@@ -141,7 +142,7 @@ public  class MainActivityFragment extends Fragment implements LocationListener 
                 }
 
                 String newText = s.toString();
-                if(newText.length()==1) {
+                if(newText.length()== 1) {
 
                     startfetchsuggestion(newText);
                 }
