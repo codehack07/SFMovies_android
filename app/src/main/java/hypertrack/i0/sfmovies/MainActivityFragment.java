@@ -58,8 +58,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public  class MainActivityFragment extends Fragment implements LocationListener {
 
     GoogleMap googleMap;
-        private String[] Locations;
-    private ArrayList<MyMarker> mMyMarkersArray = new ArrayList<MyMarker>();
+    private String[] Locations;
+  //  private ArrayList<MyMarker> mMyMarkersArray = new ArrayList<MyMarker>();
     private Toolbar mToolbar;
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
@@ -189,7 +189,7 @@ public  class MainActivityFragment extends Fragment implements LocationListener 
 
     }
 
-    private void plotMarkers(ArrayList<MyMarker> markers)
+    public void plotMarkers(ArrayList<MyMarker> markers)
     {
         googleMap.clear();
 
@@ -214,40 +214,6 @@ public  class MainActivityFragment extends Fragment implements LocationListener 
 
 
     }
-
-public void updatelocation(String result[])
-{ if(result !=null){
-    mMyMarkersArray=new ArrayList<MyMarker>();;
-    Geocoder geo=new Geocoder(context, Locale.getDefault());
-    try {
-        for(int j=0;j<result.length;j++) {
-            System.out.println(result[j]);
-            List<Address> list = geo.getFromLocationName(result[j], 3);
-            if(list.size()>0) {
-                Address address = list.get(0);
-                lat = address.getLatitude();
-                lng = address.getLongitude();
-
-
-                mMyMarkersArray.add(new MyMarker(result[j], "icon1", lat, lng));
-
-                System.out.println("lat long =" + lat + " " + lng);
-            }
-        }
-        plotMarkers(mMyMarkersArray);
-
-    }
-    catch (Exception e)
-    {
-        e.printStackTrace();
-    }
-
-
-
-}
-
-    }
-
 
 
     public void updatesuggestion(String[] result)

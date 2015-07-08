@@ -1,5 +1,6 @@
 package hypertrack.i0.sfmovies;
 
+import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
@@ -22,20 +23,19 @@ import java.util.StringTokenizer;
 /**
  * Created by anuj on 5/7/15.
  */
-public class FetchLocation  extends AsyncTask<String, Void, String[]> {
+public class FetchLocation  extends AsyncTask<String, Void, Void> {
 
     MainActivityFragment mainActivityFragment;
+    ArrayList<MyMarker> mMyMarkersArray;
 
-    public FetchLocation(MainActivityFragment f)
-    {
-        this.mainActivityFragment=f;
+    public FetchLocation(MainActivityFragment f) {
+        this.mainActivityFragment = f;
     }
 
-    String LOG_TAG=FetchLocation.class.getSimpleName();
+    String LOG_TAG = FetchLocation.class.getSimpleName();
 
     @Override
-    protected String[] doInBackground(String... Title) {
-
+    protected Void doInBackground(String... Title) {
 
 
         HttpURLConnection urlConnection = null;
@@ -45,26 +45,24 @@ public class FetchLocation  extends AsyncTask<String, Void, String[]> {
 
         try {
 
-            String mtitle="";
+            String mtitle = "";
             StringTokenizer str = new StringTokenizer(Title[0]);
 
-            while(str.hasMoreElements())
-            {
-                mtitle+=str.nextElement()+"%20";
+            while (str.hasMoreElements()) {
+                mtitle += str.nextElement() + "%20";
             }
             Log.v(LOG_TAG, mtitle);
 
-            URL url = new URL(mainActivityFragment.globalurl+"movies/"+mtitle);
-            Log.v(LOG_TAG,url.toString());
-            urlConnection = (HttpURLConnection)url.openConnection();
+            URL url = new URL(mainActivityFragment.globalurl + "movies/" + mtitle);
+            Log.v(LOG_TAG, url.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
-            InputStream inputStream =urlConnection.getInputStream();
-            StringBuffer  buffer = new StringBuffer();
-            if(inputStream==null)
-            {
-                moviesjsondata=null;
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null) {
+                moviesjsondata = null;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -88,13 +86,10 @@ public class FetchLocation  extends AsyncTask<String, Void, String[]> {
             moviesjsondata = null;
         }
 
-        try
-        {
-            String [] locations = getlocations(moviesjsondata);
-            for(String s:locations) {
-                Log.v(LOG_TAG, s);
-            }
-            return locations;
+        try {
+            getlocations(moviesjsondata);
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -104,36 +99,42 @@ public class FetchLocation  extends AsyncTask<String, Void, String[]> {
 
 
     @Override
-    protected  void onPostExecute(String[] result)
-    {
- mainActivityFragment.updatelocation(result);
+    protected void onPostExecute(Void a) {
+        mainActivityFragment.plotMarkers(mMyMarkersArray);
     }
 
 
-
-    private String[] getlocations(String moviesjson) throws JSONException
-    {
+    private void getlocations(String moviesjson) throws JSONException {
 
         final String Movie = "data";
         JSONObject moviesJson = new JSONObject(moviesjson);
         JSONArray moviesArray = moviesJson.getJSONArray(Movie);
+        double lat, lng;
+        ArrayList<String> locations = new ArrayList<String>();
+        mMyMarkersArray = new ArrayList<MyMarker>();
+        Context context = mainActivityFragment.context;
+        Geocoder geo = new Geocoder(context, Locale.getDefault());
 
-        ArrayList<String> locations= new ArrayList<String>();
-
-        for(int i=0;i<moviesArray.length();i++)
-        {
+        for (int i = 0; i < moviesArray.length(); i++) {
             String location;
             JSONObject MovieObj = moviesArray.getJSONObject(i);
             String loc = MovieObj.getString("locations");
-            locations.add(loc);
-        }
-        String[] array = new String[locations.size()];
-        int i=0;
-        for(String s: locations){
-            array[i++] = s;
-        }
+            try {
+                List<Address> list = geo.getFromLocationName(loc, 3);
+                if (list.size() > 0) {
+                    Address address = list.get(0);
+                    lat = address.getLatitude();
+                    lng = address.getLongitude();
+                    mMyMarkersArray.add(new MyMarker(loc, "icon1", lat, lng));
 
-        return array;
+                    System.out.println("lat long =" + lat + " " + lng);
+                }
 
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }
